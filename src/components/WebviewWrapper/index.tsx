@@ -5,14 +5,11 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  View,
 } from "react-native";
 import { WebView } from "react-native-webview";
-import { Divider, IconButton, Text } from "@react-native-material/core";
-import TodayIcon from "../icons/TodayIcon";
-import ChallengesIcon from "../icons/ChallengesIcon";
-import LearnIcon from "../icons/LearnIcon";
-import ResetIcon from "../icons/ResetIcon";
+import { Divider } from "@react-native-material/core";
+
+import BottomNavigationBar from "../Features/BottomNavigationBar";
 
 const styles = StyleSheet.create({
   container: {
@@ -21,46 +18,20 @@ const styles = StyleSheet.create({
     height: 50,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  bottomBar: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginLeft: 50,
-    marginRight: 50,
-    marginBottom: Platform.OS === "android" ? StatusBar.currentHeight - 10 : 0,
-  },
-  button: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
 });
 
-const WebviewWrapper = () => {
-  const webView = useRef<any>();
-
-  const initialRoute = "http://localhost:3000";
-  const [route, setRoute] = useState(initialRoute);
-  let navigateHandler = () => {
-    console.log("navigate");
-  };
-  const runFirst = `
+const initialRoute = "http://localhost:3000";
+const runFirst = `
       window.isRunningInWebView = true
       true; // note: this is required, or you'll sometimes get silent failures
     `;
-  let handlePress = (value: string) => {
-    const injected = `window.handleNativeHandshake(${JSON.stringify({
-      type: "NAVIGATE",
-      value: `/${value}`,
-    })})`;
-    console.log(injected);
-    webView.current.injectJavaScript(injected);
-  };
 
-  function stateChange(event: any) {
-    console.log(event);
+const WebviewWrapper = () => {
+  const webView = useRef<WebView>();
+  const [route, setRoute] = useState(initialRoute);
+  const stateChange = (event: any) => {
     setRoute(event.url);
-  }
-
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -85,39 +56,7 @@ const WebviewWrapper = () => {
         />
       </ScrollView>
       <Divider />
-      {!route.includes("login") && (
-        <View style={styles.bottomBar}>
-          <View style={styles.button}>
-            <IconButton
-              onPress={() => handlePress("today")}
-              icon={(props) => <TodayIcon />}
-            />
-            <Text variant={"body2"}>Today</Text>
-          </View>
-          <View style={styles.button}>
-            <IconButton
-              onPress={() => handlePress("challenges")}
-              icon={(props) => <ChallengesIcon />}
-            />
-            <Text variant={"body2"}>Challenges</Text>
-          </View>
-
-          <View style={styles.button}>
-            <IconButton
-              onPress={() => handlePress("learn")}
-              icon={(props) => <LearnIcon />}
-            />
-            <Text variant={"body2"}>Learn</Text>
-          </View>
-          <View style={styles.button}>
-            <IconButton
-              onPress={() => handlePress("reset")}
-              icon={(props) => <ResetIcon />}
-            />
-            <Text variant={"body2"}>Reset</Text>
-          </View>
-        </View>
-      )}
+      {!route.includes("login") && <BottomNavigationBar webviewRef={webView} />}
     </SafeAreaView>
   );
 };
