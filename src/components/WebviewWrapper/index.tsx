@@ -6,9 +6,8 @@ import {
   StatusBar,
   StyleSheet,
 } from "react-native";
-import { WebView } from "react-native-webview";
+import { WebView, WebViewNavigation } from "react-native-webview";
 import { Divider } from "@react-native-material/core";
-
 import BottomNavigationBar from "../Features/BottomNavigationBar";
 
 const styles = StyleSheet.create({
@@ -20,7 +19,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const initialRoute = "http://localhost:3000";
+const initialRoute = "https://localhost:3000";
 const runFirst = `
       window.isRunningInWebView = true
       true; // note: this is required, or you'll sometimes get silent failures
@@ -29,7 +28,7 @@ const runFirst = `
 const WebviewWrapper = () => {
   const webView = useRef<WebView>();
   const [route, setRoute] = useState(initialRoute);
-  const stateChange = (event: any) => {
+  const stateChange = (event: WebViewNavigation) => {
     setRoute(event.url);
   };
   return (
@@ -44,9 +43,6 @@ const WebviewWrapper = () => {
           allowsFullscreenVideo={true}
           injectedJavaScriptBeforeContentLoaded={runFirst}
           onNavigationStateChange={stateChange}
-          onMessage={(event) => {
-            alert(event.nativeEvent.data);
-          }}
           source={{
             uri: route,
             headers: {
@@ -56,7 +52,9 @@ const WebviewWrapper = () => {
         />
       </ScrollView>
       <Divider />
-      {!route.includes("login") && <BottomNavigationBar webviewRef={webView} />}
+      {!route.includes("login") && (
+        <BottomNavigationBar webviewRef={webView} route={route} />
+      )}
     </SafeAreaView>
   );
 };
