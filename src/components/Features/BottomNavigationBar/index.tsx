@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { IconButton, Text } from "@react-native-material/core";
 import TodayIcon from "../../icons/TodayIcon";
@@ -28,11 +28,29 @@ interface BottomNavigationBarProps {
   route: string;
 }
 
+const tabs = [
+  {
+    name: "Today",
+    icon: TodayIcon,
+  },
+  {
+    name: "Challenges",
+    icon: ChallengesIcon,
+  },
+  {
+    name: "Learn",
+    icon: LearnIcon,
+  },
+  {
+    name: "Reset",
+    icon: ResetIcon,
+  },
+];
+
 const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
   webviewRef,
   route,
 }) => {
-  const [tabs, setTabs] = useState([]);
   const handlePress = (value: string) => {
     const injected = `window.handleNativeHandshake(${JSON.stringify({
       type: "NAVIGATE",
@@ -40,57 +58,32 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
     })})`;
     webviewRef.current.injectJavaScript(injected);
   };
-  useEffect(() => {
-    const tabs = [
-      {
-        name: "Today",
-        icon: (
-          <TodayIcon
-            color={route.includes("today") ? colors.teal : colors.purple}
-          />
-        ),
-      },
-      {
-        name: "Challenges",
-        icon: (
-          <ChallengesIcon
-            color={route.includes("challenges") ? colors.teal : colors.purple}
-          />
-        ),
-      },
-      {
-        name: "Learn",
-        icon: (
-          <LearnIcon
-            color={route.includes("learn") ? colors.teal : colors.purple}
-          />
-        ),
-      },
-      {
-        name: "Reset",
-        icon: (
-          <ResetIcon
-            color={route.includes("reset") ? colors.teal : colors.purple}
-          />
-        ),
-      },
-    ];
-    setTabs(tabs);
-  }, [route]);
 
   return (
     <View style={styles.bottomBar}>
-      {tabs.map((tab) => (
-        <View style={styles.button} key={tab.name}>
-          <IconButton
-            onPress={() => handlePress(tab.name)}
-            icon={() => tab.icon}
-          />
-          <Text variant={"body2"}>{tab.name}</Text>
-        </View>
-      ))}
+      {tabs.map((tab) => {
+        // Creating new component so we can pass props
+        const ButtonIcon = tab.icon;
+        const isActiveTab = route.includes(tab.name.toLowerCase());
+        return (
+          <View style={styles.button} key={tab.name}>
+            <IconButton
+              onPress={() => handlePress(tab.name)}
+              icon={() => (
+                <ButtonIcon color={isActiveTab ? colors.purple : colors.grey} />
+              )}
+            />
+            <Text
+              variant={"caption"}
+              color={isActiveTab ? colors.purple : colors.grey}
+            >
+              {tab.name}
+            </Text>
+          </View>
+        );
+      })}
     </View>
   );
 };
 
-export default BottomNavigationBar;
+export default React.memo(BottomNavigationBar);
