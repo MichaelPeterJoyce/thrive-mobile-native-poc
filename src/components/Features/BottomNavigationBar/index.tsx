@@ -55,7 +55,11 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
     const injected = `window.handleNativeHandshake(${JSON.stringify({
       type: "NAVIGATE",
       value: `/${value.toLowerCase()}`,
-    })})`;
+    })})
+    true; // note: this is required, or you'll sometimes get silent failures
+    `;
+
+    console.log(injected);
     webviewRef.current.injectJavaScript(injected);
   };
 

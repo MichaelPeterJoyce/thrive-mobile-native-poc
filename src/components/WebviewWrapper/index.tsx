@@ -7,36 +7,37 @@ import {
   StyleSheet,
 } from "react-native";
 import { WebView, WebViewNavigation } from "react-native-webview";
-import {
-  ActivityIndicator,
-  Divider,
-  Stack,
-  useStyles,
-} from "@react-native-material/core";
+import { ActivityIndicator, Divider, Stack } from "@react-native-material/core";
 import BottomNavigationBar from "../Features/BottomNavigationBar";
 import { colors } from "../../constants/colors";
 import ThriveLogo from "../icons/ThriveLogo";
+import { browserInjectionJavascript } from "../../utils/injected";
 
 const initialRoute = "https://app.stag.thriveglobal.com";
-const runFirst = `
-      window.isRunningInWebView = true
-      true; // note: this is required, or you'll sometimes get silent failures
-    `;
-
 const routes = ["today", "learn", "challenges", "reset", "profile"];
 
-const WebViewStyle = (props) =>
-  StyleSheet.create({
+const WebViewStyle = (props) => {
+  let backgroundColorTheme = "";
+  switch (props.theme) {
+    case "THRIVE":
+      backgroundColorTheme = "transparent";
+      break;
+    case "HIGH_CONTRAST":
+      backgroundColorTheme = "#111";
+      break;
+  }
+  return StyleSheet.create({
     container: {
       flex: 1,
       width: 420,
       height: 50,
       backgroundColor: props.route.includes("login")
         ? colors.purple
-        : "transparent",
+        : backgroundColorTheme,
       paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
   });
+};
 
 const WebviewWrapper = () => {
   const webView = useRef<WebView>();
@@ -44,7 +45,11 @@ const WebviewWrapper = () => {
   const [loading, setLoading] = useState(true);
   const stateChange = (event: WebViewNavigation) => setRoute(event.url);
   const [showBottomNavigationBar, setShowBottomNavigationBar] = useState(false);
-  const StyledContainer = WebViewStyle({ route }).container;
+  const [reduxState, setReduxState] = useState(null);
+  const StyledContainer = WebViewStyle({
+    route,
+    theme: reduxState?.settings?.theme,
+  }).container;
 
   useEffect(() => {
     if (routes.some((substring) => route.includes(substring))) {
@@ -54,6 +59,10 @@ const WebviewWrapper = () => {
     }
   }, [route]);
 
+  const onMessage = (event) => {
+    const data = JSON.parse(event.nativeEvent.data);
+    setReduxState(data);
+  };
   return (
     <SafeAreaView style={StyledContainer}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -76,8 +85,9 @@ const WebviewWrapper = () => {
               setRoute(url);
             }
           }}
+          onMessage={onMessage}
           allowsFullscreenVideo={true}
-          injectedJavaScriptBeforeContentLoaded={runFirst}
+          injectedJavaScriptBeforeContentLoaded={browserInjectionJavascript}
           onNavigationStateChange={stateChange}
           source={{
             uri: route,

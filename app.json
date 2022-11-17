@@ -3,7 +3,7 @@
     "jsEngine": "hermes",
     "name": "thrive-mobile",
     "owner": "michaeljoyce",
-    "slug": "thrive-mobile",
+    "slug": "thrive-mobile-private",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
