@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { IconButton, Text } from "@react-native-material/core";
 import TodayIcon from "../../icons/TodayIcon";
@@ -7,6 +7,7 @@ import LearnIcon from "../../icons/LearnIcon";
 import ResetIcon from "../../icons/ResetIcon";
 import { WebView } from "react-native-webview";
 import { colors } from "../../../constants/colors";
+import {ReduxContext} from "../../../utils/context";
 
 const styles = StyleSheet.create({
   bottomBar: {
@@ -51,6 +52,25 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
   webviewRef,
   route,
 }) => {
+  const reduxState = useContext<any>(ReduxContext);
+
+  const [activeColor, setActiveColor] = useState(colors.purple)
+
+  useEffect(() => {
+    let color = ''
+    switch (reduxState.settings.theme) {
+      case "THRIVE":
+        color = colors.purple;
+        break;
+      case "HIGH_CONTRAST":
+        color = colors.white;
+        break;
+      default:
+        color = colors.purple;
+    }
+    setActiveColor(color)
+  }, [reduxState.settings.theme])
+
   const handlePress = (value: string) => {
     const injected = `window.handleNativeHandshake(${JSON.stringify({
       type: "NAVIGATE",
@@ -58,10 +78,10 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
     })})
     true; // note: this is required, or you'll sometimes get silent failures
     `;
-
-    console.log(injected);
     webviewRef.current.injectJavaScript(injected);
   };
+
+  console.log(activeColor)
 
   return (
     <View style={styles.bottomBar}>
@@ -74,12 +94,12 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
             <IconButton
               onPress={() => handlePress(tab.name)}
               icon={() => (
-                <ButtonIcon color={isActiveTab ? colors.purple : colors.grey} />
+                <ButtonIcon color={isActiveTab ? activeColor : colors.grey} />
               )}
             />
             <Text
               variant={"caption"}
-              color={isActiveTab ? colors.purple : colors.grey}
+              color={isActiveTab ? activeColor : colors.grey}
             >
               {tab.name}
             </Text>

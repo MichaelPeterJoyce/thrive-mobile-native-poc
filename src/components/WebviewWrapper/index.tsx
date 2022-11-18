@@ -12,6 +12,7 @@ import BottomNavigationBar from "../Features/BottomNavigationBar";
 import { colors } from "../../constants/colors";
 import ThriveLogo from "../icons/ThriveLogo";
 import { browserInjectionJavascript } from "../../utils/injected";
+import { ReduxContext } from "../../utils/context";
 
 const initialRoute = "https://app.stag.thriveglobal.com";
 const routes = ["today", "learn", "challenges", "reset", "profile"];
@@ -25,6 +26,8 @@ const WebViewStyle = (props) => {
     case "HIGH_CONTRAST":
       backgroundColorTheme = "#111";
       break;
+    default:
+      backgroundColorTheme = "transparent";
   }
   return StyleSheet.create({
     container: {
@@ -38,6 +41,7 @@ const WebViewStyle = (props) => {
     },
   });
 };
+
 
 const WebviewWrapper = () => {
   const webView = useRef<WebView>();
@@ -64,44 +68,46 @@ const WebviewWrapper = () => {
     setReduxState(data);
   };
   return (
-    <SafeAreaView style={StyledContainer}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {loading && (
-          <Stack fill center spacing={8}>
-            <ThriveLogo />
-            <ActivityIndicator color={colors.teal} />
-          </Stack>
+    <ReduxContext.Provider value={reduxState}>
+      <SafeAreaView style={StyledContainer}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          {loading && (
+            <Stack fill center spacing={8}>
+              <ThriveLogo />
+              <ActivityIndicator color={colors.teal} />
+            </Stack>
+          )}
+          <WebView
+            ref={webView}
+            nestedScrollEnabled
+            style={{ width: "100%", display: loading ? "none" : "flex" }}
+            javaScriptEnabled={true}
+            scrollEnabled={true}
+            onLoadEnd={() => setLoading(false)}
+            onLoadProgress={(event) => {
+              if (Platform.OS === "android") {
+                let { url } = event?.nativeEvent;
+                setRoute(url);
+              }
+            }}
+            onMessage={onMessage}
+            allowsFullscreenVideo={true}
+            injectedJavaScriptBeforeContentLoaded={browserInjectionJavascript}
+            onNavigationStateChange={stateChange}
+            source={{
+              uri: route,
+              headers: {
+                X_THRIVE_CLIENT: `thrive-${Platform.OS}`,
+              },
+            }}
+          />
+        </ScrollView>
+        <Divider />
+        {showBottomNavigationBar && (
+          <BottomNavigationBar webviewRef={webView} route={route} />
         )}
-        <WebView
-          ref={webView}
-          nestedScrollEnabled
-          style={{ width: "100%", display: loading ? "none" : "flex" }}
-          javaScriptEnabled={true}
-          scrollEnabled={true}
-          onLoadEnd={() => setLoading(false)}
-          onLoadProgress={(event) => {
-            if (Platform.OS === "android") {
-              let { url } = event?.nativeEvent;
-              setRoute(url);
-            }
-          }}
-          onMessage={onMessage}
-          allowsFullscreenVideo={true}
-          injectedJavaScriptBeforeContentLoaded={browserInjectionJavascript}
-          onNavigationStateChange={stateChange}
-          source={{
-            uri: route,
-            headers: {
-              X_THRIVE_CLIENT: `thrive-${Platform.OS}`,
-            },
-          }}
-        />
-      </ScrollView>
-      <Divider />
-      {showBottomNavigationBar && (
-        <BottomNavigationBar webviewRef={webView} route={route} />
-      )}
-    </SafeAreaView>
+      </SafeAreaView>
+    </ReduxContext.Provider>
   );
 };
 
