@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginLeft: 50,
-    marginRight: 50,
+    marginLeft: 40,
+    marginRight: 40,
     marginBottom: Platform.OS === "android" ? StatusBar.currentHeight - 10 : 0,
   },
   button: {
@@ -58,7 +58,7 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
 
   useEffect(() => {
     let color = ''
-    switch (reduxState.settings.theme) {
+    switch (reduxState?.settings?.theme) {
       case "THRIVE":
         color = colors.purple;
         break;
@@ -69,7 +69,7 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
         color = colors.purple;
     }
     setActiveColor(color)
-  }, [reduxState.settings.theme])
+  }, [reduxState?.settings?.theme])
 
   const handlePress = (value: string) => {
     const injected = `window.handleNativeHandshake(${JSON.stringify({
@@ -80,8 +80,6 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
     `;
     webviewRef.current.injectJavaScript(injected);
   };
-
-  console.log(activeColor)
 
   return (
     <View style={styles.bottomBar}>

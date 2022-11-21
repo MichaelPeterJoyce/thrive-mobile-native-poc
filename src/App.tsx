@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { registerRootComponent } from "expo"
 import WebviewWrapper from "./components/WebviewWrapper";
+import 'react-native-url-polyfill/auto';
 
 function App() {
   return (

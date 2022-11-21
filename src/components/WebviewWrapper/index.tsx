@@ -14,7 +14,7 @@ import ThriveLogo from "../icons/ThriveLogo";
 import { browserInjectionJavascript } from "../../utils/injected";
 import { ReduxContext } from "../../utils/context";
 
-const initialRoute = "https://app.stag.thriveglobal.com";
+const initialRoute = "https://app.thriveglobal.com";
 const routes = ["today", "learn", "challenges", "reset", "profile"];
 
 const WebViewStyle = (props) => {
@@ -32,16 +32,16 @@ const WebViewStyle = (props) => {
   return StyleSheet.create({
     container: {
       flex: 1,
-      width: 420,
+      width: "100%",
       height: 50,
       backgroundColor: props.route.includes("login")
         ? colors.purple
         : backgroundColorTheme,
       paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      marginBottom: Platform.OS === "android" ? 0 : 20,
     },
   });
 };
-
 
 const WebviewWrapper = () => {
   const webView = useRef<WebView>();
@@ -56,10 +56,15 @@ const WebviewWrapper = () => {
   }).container;
 
   useEffect(() => {
-    if (routes.some((substring) => route.includes(substring))) {
+    const url = new URL(route);
+    console.log(url.pathname)
+    if (routes.some((substring) => url.pathname.includes(substring))) {
       setShowBottomNavigationBar(true);
     } else {
       setShowBottomNavigationBar(false);
+    }
+    if (url.pathname === "/app/UserHome") {
+      setRoute(`${initialRoute}/login/callback`)
     }
   }, [route]);
 
@@ -84,6 +89,10 @@ const WebviewWrapper = () => {
             javaScriptEnabled={true}
             scrollEnabled={true}
             onLoadEnd={() => setLoading(false)}
+            sharedCookiesEnabled={true}
+            automaticallyAdjustContentInsets={true}
+            allowFileAccess={true}
+            scalesPageToFit={true}
             onLoadProgress={(event) => {
               if (Platform.OS === "android") {
                 let { url } = event?.nativeEvent;
