@@ -107,6 +107,7 @@ const WebviewWrapper = () => {
               uri: route,
               headers: {
                 X_THRIVE_CLIENT: `thrive-${Platform.OS}`,
+                THRIVE_APP_VERSION: '3.52.0'
               },
             }}
           />

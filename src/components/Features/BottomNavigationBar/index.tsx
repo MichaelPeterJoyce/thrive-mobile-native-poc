@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import {Platform, StatusBar, StyleSheet, View} from "react-native";
 import { IconButton, Text } from "@react-native-material/core";
 import TodayIcon from "../../icons/TodayIcon";
 import ChallengesIcon from "../../icons/ChallengesIcon";
@@ -8,7 +8,6 @@ import ResetIcon from "../../icons/ResetIcon";
 import { WebView } from "react-native-webview";
 import { colors } from "../../../constants/colors";
 import {ReduxContext} from "../../../utils/context";
-
 const styles = StyleSheet.create({
   bottomBar: {
     display: "flex",
@@ -53,7 +52,6 @@ const BottomNavigationBar: React.FC<BottomNavigationBarProps> = ({
   route,
 }) => {
   const reduxState = useContext<any>(ReduxContext);
-
   const [activeColor, setActiveColor] = useState(colors.purple)
 
   useEffect(() => {

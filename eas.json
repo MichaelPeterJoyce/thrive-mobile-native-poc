@@ -11,17 +11,15 @@
       "android": {
         "buildType": "apk"
       },
+      "channel": "preview",
       "distribution": "internal"
     },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      }
+    "production2": {
+      "channel": "production"
     },
-    "preview3": {
-      "developmentClient": true
-    },
-    "production": {}
+    "production": {
+      "channel": "production"
+    }
   },
   "submit": {
     "production": {}
